@@ -28,6 +28,9 @@ func main() {
 		panic(err)
 	}
 
+	//init session store
+	core.InitSessionStore()
+
 	r := gin.Default()
 	r.LoadHTMLGlob("./templates/*")
 
@@ -43,24 +46,26 @@ func main() {
 	r.Use(middleware.ErrorHandlingMiddleware)
 
 	// Register the routes
-	r.GET("/api/v1/auth", handlers.ProcessLogin)
+	r.POST("/api/v1/auth", handlers.ProcessLogin)
 	r.DELETE("/api/v1/auth", handlers.ProcessLogout)
 
-	protected := r.Group("/api/v1")
+	protected := r.Group("")
 	protected.Use(middleware.AuthRequired)
 	{
-		protected.GET("/item", handlers.GetItems)
-		protected.GET("/item/:id", handlers.GetItem)
-		protected.POST("/item/perm", handlers.CreatePermItem)
-		protected.POST("/item/temp", handlers.CreateTempItem)
-		protected.POST("/item/count", handlers.CreateCountItem)
-		protected.PUT("/item/perm/:id", handlers.UpdatePermItem)
-		protected.PUT("/item/temp/:id", handlers.UpdateTempItem)
-		protected.PUT("/item/count/:id", handlers.UpdateCountItem)
-		protected.PUT("/item/:id", handlers.ConvertItem)
-		protected.DELETE("/item/:id", handlers.DeleteItem)
+		protected.GET("/api/v1/item", handlers.GetItems)
+		protected.GET("/api/v1/item/:id", handlers.GetItem)
+		protected.POST("/api/v1/item/perm", handlers.CreatePermItem)
+		protected.POST("/api/v1/item/temp", handlers.CreateTempItem)
+		protected.POST("/api/v1/item/count", handlers.CreateCountItem)
+		protected.PUT("/api/v1/item/perm/:id", handlers.UpdatePermItem)
+		protected.PUT("/api/v1/item/temp/:id", handlers.UpdateTempItem)
+		protected.PUT("/api/v1/item/count/:id", handlers.UpdateCountItem)
+		protected.PUT("/api/v1/item/:id", handlers.ConvertItem)
+		protected.DELETE("/api/v1/item/:id", handlers.DeleteItem)
 
-		protected.PUT("/user", handlers.UpdateUser)
+		protected.PUT("/api/v1/user", handlers.UpdateUser)
+
+		protected.GET("/", handlers.GetMainPage)
 	}
 
 	r.GET("/s/:shortUrl", handlers.ToOriginalUrl)

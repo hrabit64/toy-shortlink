@@ -3,6 +3,7 @@ package core
 import (
 	"database/sql"
 	"fmt"
+	"github.com/hrabit64/shortlink/app/utils"
 	"io"
 	"os"
 
@@ -54,7 +55,11 @@ func InitDB(sqlFilePath string) error {
 	}
 
 	if count == 0 {
-		_, err = conn.Exec("INSERT INTO USER (USER_ID, USER_PW) VALUES ('admin', 'admin')")
+		hashPw, err := utils.HashPassword("admin")
+		if err != nil {
+			return err
+		}
+		_, err = conn.Exec("INSERT INTO USER (USER_ID, USER_PW) VALUES ('admin', ?)", hashPw)
 		if err != nil {
 			return err
 		}

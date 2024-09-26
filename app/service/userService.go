@@ -5,6 +5,7 @@ import (
 	"github.com/hrabit64/shortlink/app/model"
 	"github.com/hrabit64/shortlink/app/repository"
 	"github.com/hrabit64/shortlink/app/schema"
+	"github.com/hrabit64/shortlink/app/utils"
 )
 
 func GetUserById(id string) (model.User, error) {
@@ -28,15 +29,21 @@ func UpdateUser(req schema.UserUpdateRequest) (int64, error) {
 
 	defer conn.Close()
 
+	hashPw, err := utils.HashPassword(req.Pw)
+
+	if err != nil {
+		return 0, err
+	}
+
 	user := model.User{
 		Id: req.Id,
-		Pw: req.Pw,
+		Pw: hashPw,
 	}
 	res, err := repository.UpdateUser(conn, user)
 
 	if err != nil {
 		return 0, err
 	}
-	
+
 	return res, nil
 }
