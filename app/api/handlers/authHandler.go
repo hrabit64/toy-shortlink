@@ -8,6 +8,7 @@ import (
 	"github.com/hrabit64/shortlink/app/service"
 	"github.com/hrabit64/shortlink/app/utils"
 	"log"
+	"net/http"
 )
 
 func ProcessLogin(c *gin.Context) {
@@ -41,9 +42,8 @@ func ProcessLogin(c *gin.Context) {
 		})
 		return
 	}
-	store := core.GetSessionStore()
-	session, _ := store.Get(c.Request, "session")
-	session.Values["username"] = username
+	session, _ := core.GetSession(c)
+	session.Values["authenticated"] = true
 	err = session.Save(c.Request, c.Writer)
 
 	if err != nil {
@@ -64,15 +64,8 @@ func ProcessLogin(c *gin.Context) {
 }
 
 func ProcessLogout(c *gin.Context) {
-	store := core.GetSessionStore()
-	session, _ := store.Get(c.Request, "session")
-	delete(session.Values, "username")
-	session.Save(c.Request, c.Writer)
-
-	c.JSON(200, gin.H{
-		"status":  200,
-		"message": "로그아웃 성공",
-	})
+	core.SetIsAuthenticated(c, false)
+	c.Redirect(http.StatusFound, "/login?error=로그인이 필요합니다.")
 
 	return
 }
